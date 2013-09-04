@@ -25,8 +25,10 @@ else
 LOCAL_KERNEL := $(TARGET_PREBUILT_KERNEL)
 endif
 
+# Copy kernel and prebuilts
 PRODUCT_COPY_FILES := \
-	$(LOCAL_KERNEL):kernel
+	$(LOCAL_KERNEL):kernel \
+	device/asus/flo/modules/scsi_wait_scan.ko:system/lib/modules/scsi_wait_scan.ko
 
 # This device is xhdpi.  However the platform doesn't
 # currently contain all of the bitmaps at xhdpi density so
