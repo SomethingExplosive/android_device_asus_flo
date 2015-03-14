@@ -38,6 +38,7 @@ BOARD_KERNEL_BASE := 0x80200000
 BOARD_KERNEL_PAGESIZE := 2048
 # BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.hardware=msm8960 maxcpus=2
 BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.hardware=flo user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3
+BOARD_KERNEL_CMDLINE += vmalloc=340M
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000
 
 BOARD_USES_ALSA_AUDIO:= true
@@ -76,8 +77,15 @@ TARGET_USES_OVERLAY := true
 TARGET_USES_SF_BYPASS := true
 TARGET_USES_C2D_COMPOSITON := true
 
-TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
-TARGET_RECOVERY_UI_LIB := librecovery_ui_flo
+# Enable dex-preoptimization to speed up first boot sequence
+ifeq ($(HOST_OS),linux)
+  ifeq ($(TARGET_BUILD_VARIANT),user)
+    ifeq ($(WITH_DEXPREOPT),)
+      WITH_DEXPREOPT := true
+    endif
+  endif
+endif
+WITH_DEXPREOPT_BOOT_IMG_ONLY ?= true
 
 TARGET_USERIMAGES_USE_EXT4 := true
 BOARD_BOOTIMAGE_PARTITION_SIZE := 23068672 # 22M
@@ -114,3 +122,40 @@ HAVE_ADRENO_SOURCE:= false
 
 # Import BoardConfig vendor file
 -include vendor/asus/flo/BoardConfigVendor.mk
+
+BOARD_SEPOLICY_DIRS += device/asus/flo/sepolicy
+
+# The list below is order dependent
+BOARD_SEPOLICY_UNION += \
+        bluetooth_loader.te \
+        bridge.te \
+        camera.te \
+        conn_init.te \
+        device.te \
+        domain.te \
+        file.te \
+        file_contexts \
+        hostapd.te \
+        irsc_util.te \
+        kickstart.te \
+        mediaserver.te \
+        mpdecision.te \
+        netmgrd.te \
+        property.te \
+        property_contexts \
+        qmux.te \
+        rild.te \
+        rmt.te \
+        sensors.te \
+        surfaceflinger.te \
+        system_server.te \
+        tee.te \
+        te_macros \
+        thermald.te \
+        ueventd.te
+
+# Enable Minikin text layout engine (will be the default soon)
+USE_MINIKIN := true
+
+# Include an expanded selection of fonts
+EXTENDED_FONT_FOOTPRINT := true
